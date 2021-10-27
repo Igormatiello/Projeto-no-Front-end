@@ -2,7 +2,9 @@ import React from "react";
 import Card from '../components/cards'
 import FormGroup from "../components/form-group";
 import {withRouter} from 'react-router-dom'
-import axios from "axios";
+import UsuarioService from "../app/service/usuarioService";
+import localStorageService from "../app/service/localstorageService" 
+import { mensagemErro }  from '../components/toastr'
 
 class Login extends React.Component {
 
@@ -11,17 +13,27 @@ class Login extends React.Component {
         senha: ''
     }
 
+
+    constructor(){
+        super();
+        this.service= new UsuarioService();
+
+
+    }
+
     entrar = () => {
        
-        axios.post('http://localhost:3000/api/usuarios/autenticar',{
-            email: this.state.email,
-            senha: this.state.senha
+            this.service.autenticar({
+                email: this.state.email,
+                senha: this.state.senha
 
+            }).then( response => {
+                localStorageService.adicionarItem('_usuario_logado',response.data)
+         
 
-        }).then( response => {
-            console.log(response)
+           this.props.history.push("/home")
         }).catch( erro => {
-            console.log(erro.response)
+           mensagemErro(erro.reponse.data)
         } )
 
 
@@ -43,6 +55,7 @@ this.props.history.push('/cadastro-usuarios')
                         <div className="bs-docs-section">
 
                             <Card title="Login">
+                               
                                 <div className="row">
                                     <div className="col-lg-12">
                                         <div className="bs-component">
